@@ -359,14 +359,18 @@ void NpsGazeboRosMultibeamSonar::Load(sensors::SensorPtr _parent,
         this->writeInterval = _sdf->Get<int>("writeFrameInterval");
       else
         this->writeInterval = 10;
-      ROS_INFO_STREAM("Raw data at " << "/tmp/SonarRawData_{numbers}.csv");
+
+      this->writeLocDir =
+        _sdf->GetElement("writeLoc")->Get<std::string>();
+
+      ROS_INFO_STREAM("Raw data at " << this->writeLocDir << "SonarRawData_{numbers}.csv");
       ROS_INFO_STREAM("every " << this->writeInterval << " frames");
       ROS_INFO_STREAM("");
 
-      struct stat buffer;
-      std::string logfilename("/tmp/SonarRawData_000001.csv");
-      if (stat (logfilename.c_str(), &buffer) == 0)
-        system("rm /tmp/SonarRawData*.csv");
+      // struct stat buffer;
+      // std::string logfilename("/tmp/SonarRawData_000001.csv");
+      // if (stat (logfilename.c_str(), &buffer) == 0)
+      //   system("rm /tmp/SonarRawData*.csv");
     }
   }
 
@@ -765,7 +769,7 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
     {
       double time = this->parentSensor_->LastMeasurementTime().Double();
       std::stringstream filename;
-      filename << "/tmp/SonarRawData_" << std::setw(6) <<  std::setfill('0')
+      filename << this->writeLocDir << "SonarRawData_" << std::setw(6) <<  std::setfill('0')
                << this->writeNumber << ".csv";
       writeLog.open(filename.str().c_str(), std::ios_base::app);
       filename.clear();

@@ -22,16 +22,16 @@
     </include>
 
     <!-- cylinder target -->
-    <include>
+    <!-- <include>
       <uri>model://cylinder_sonar_tank</uri>
       <pose>2.1 5.0 1.0 0 0 0</pose>
       <static>true</static>
-    </include>
+    </include> -->
 
     <!-- Blueview M450 -->
     <include>
-      <uri>model://blueview_m450_nps_multibeam</uri>
-      <name>blueview_m450</name>
+      <uri>model://tritech_gemini_720i</uri>
+      <name>tritech_gemini_720i</name>
       <pose>2.1 1.0 1.0 0 0 1.5709</pose>
       <static>true</static>
     </include>
