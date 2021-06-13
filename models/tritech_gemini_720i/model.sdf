@@ -39,8 +39,11 @@
           <image>
             <width>256</width>
             <!-- Set vertical FOV by setting image height -->
+            <!-- Also depends on horiztonal FOV!! -->
+            <!-- height = vertBeamwidth*numBeams/horiBeamwidth
+                  (everything in radians) -->
             <!-- For 20 deg. -->
-            <height>114</height>
+            <height>43</height>
             <format>R8G8B8</format>
           </image>
           <clip>
@@ -60,7 +63,7 @@
           <bandwidth>29.9e3</bandwidth>
           <soundSpeed>1505</soundSpeed>
           <sourceLevel>220</sourceLevel>
-          <maxDistance>10</maxDistance>
+          <maxDistance>5</maxDistance>
           <constantReflectivity>true</constantReflectivity>
           <!-- The CSV databsefile is located at the worlds folder -->
           <reflectivityDatabaseFile>variationalReflectivityDatabase.csv</reflectivityDatabaseFile>
@@ -72,7 +75,6 @@
           <writeFrameInterval>5</writeFrameInterval>
           <!-- Where to write the csvs -->
           <writeLoc>/home/bob/Downloads/sonar_test/</writeLoc>
-          <param name="start_time" command="date +'%d-%m-%Y_%Ih%Mm%S'"/>
           <!-- This name is prepended to ROS topics -->
           <cameraName>tritech_gemini_720i</cameraName>
           <!-- ROS publication topics -->

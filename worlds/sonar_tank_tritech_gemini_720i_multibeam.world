@@ -1,38 +1,41 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
   <world name="default">
-    <include>
+    <!-- <include>
       <uri>model://ground_plane</uri>
-    </include>
+    </include> -->
     <include>
       <uri>model://sun</uri>
     </include>
     
-    <gui>
+    <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>9.0 3.4 7.5 0.0 0.75 3.1</pose>
+        <pose frame=''>12.2952 1.73855 3.87109 0 0.186 2.944</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
       </camera>
     </gui>
 
     <!-- basement tank -->
-    <include>
+    <!-- <include>
       <uri>model://basement_tank</uri>
       <pose>0 0 0 0 0 0</pose>
       <static>true</static>
-    </include>
-
-    <!-- cylinder target -->
-    <!-- <include>
-      <uri>model://cylinder_sonar_tank</uri>
-      <pose>2.1 5.0 1.0 0 0 0</pose>
-      <static>true</static>
     </include> -->
 
-    <!-- Blueview M450 -->
+
+    <!-- Tritech Gemini 720i -->
     <include>
       <uri>model://tritech_gemini_720i</uri>
       <name>tritech_gemini_720i</name>
-      <pose>2.1 1.0 1.0 0 0 1.5709</pose>
+      <pose>2.09991 1.82696 3.58688 0 0.507535 1.5709</pose>
+      <static>true</static>
+    </include>
+
+    <include>
+      <uri>model://sphere</uri>
+      <name>sphere</name>
+      <pose>1.97334 3.04378 2.66831 0 -0 0</pose>
       <static>true</static>
     </include>
 

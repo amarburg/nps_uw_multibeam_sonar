@@ -43,6 +43,8 @@
 #include <vector>
 #include <limits>
 
+#include <iostream>
+
 namespace gazebo
 {
 // Register this plugin with the simulator

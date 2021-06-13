@@ -19,7 +19,8 @@ import os
 import numpy as np
 import time
 
-experiment_dir = '/home/bob/Downloads/' + datetime.now().strftime('%Y-%m-%d-%H-%M-%S--%f')[:-3] + '/'
+experiment_dir = '/media/bob/BackupHDD/bob/Winter2021/Research/sonar_reconstruction/test_data/' +\
+								  datetime.now().strftime('%Y-%m-%d-%H-%M-%S--%f')[:-3] + '/'
 os.mkdir(experiment_dir)
 raw_dir = experiment_dir+'raw_imgs/'
 os.mkdir(raw_dir)
@@ -27,6 +28,8 @@ fan_dir = experiment_dir+'fan_imgs/'
 os.mkdir(fan_dir)
 fan_image_topic = "/tritech_gemini_720i/sonar_image"
 raw_image_topic = "/tritech_gemini_720i/sonar_image_raw"
+# fan_image_topic = "/blueview_p900/sonar_image"
+# raw_image_topic = "/blueview_p900/sonar_image_raw"
 
 bridge = CvBridge()
 
@@ -56,6 +59,7 @@ def raw_image_callback(msg):
 		print("---------------")
 		print(len(msg.ranges))
 		print(len(msg.intensities))
+		print(msg.elevation_beamwidth)
 		raw_img = raw2cvimg(msg)
 		time = msg.header.stamp
 		cv2.imwrite(raw_dir + str(time) + '_raw.png', raw_img)
