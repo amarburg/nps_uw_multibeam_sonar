@@ -18,7 +18,7 @@
         <collision name='collision'>
           <geometry>
             <sphere>
-              <radius>0.25</radius>
+              <radius>0.19</radius>
             </sphere>
           </geometry>
           <max_contacts>50</max_contacts>
@@ -38,7 +38,7 @@
         <visual name='visual'>
           <geometry>
             <sphere>
-              <radius>0.25</radius>
+              <radius>0.19</radius>
             </sphere>
           </geometry>
           <material>

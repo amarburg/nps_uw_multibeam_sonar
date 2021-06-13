@@ -35,8 +35,18 @@ bridge = CvBridge()
 
 def fan_image_callback(msg):
 		cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
-		time = msg.header.stamp
+		time = headertime2str(msg.header)
 		cv2.imwrite(experiment_dir + str(time) + '.png', cv2_img)
+
+def raw_image_callback(msg):
+		# cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
+		# print("---------------")
+		# print(len(msg.ranges))
+		# print(len(msg.intensities))
+		# print(msg.elevation_beamwidth)
+		raw_img = raw2cvimg(msg)
+		time = headertime2str(msg.header)
+		cv2.imwrite(raw_dir + str(time) + '_raw.png', raw_img)
 
 def raw2cvimg(msg):
 	'''
@@ -54,15 +64,10 @@ def raw2cvimg(msg):
 	img = np.array(img_list)
 	return img
 
-def raw_image_callback(msg):
-		# cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
-		print("---------------")
-		print(len(msg.ranges))
-		print(len(msg.intensities))
-		print(msg.elevation_beamwidth)
-		raw_img = raw2cvimg(msg)
-		time = msg.header.stamp
-		cv2.imwrite(raw_dir + str(time) + '_raw.png', raw_img)
+def headertime2str(header):
+	'''
+	'''
+	return str(header.stamp.secs)+'_'+str(header.stamp.nsecs)
 
 def main():
 		rospy.init_node('sonar_image_writer')    

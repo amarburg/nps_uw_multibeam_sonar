@@ -47,7 +47,7 @@
             <format>R8G8B8</format>
           </image>
           <clip>
-            <near>0.2</near>            <!-- optimal 2m-60m -->
+            <near>0.2</near>            
             <far>20</far>
           </clip>
           <depth_camera>
@@ -60,15 +60,23 @@
         <plugin filename="libnps_multibeam_sonar_ros_plugin.so" name="forward_sonar">
           <!-- Sonar properties -->
           <sonarFreq>720e3</sonarFreq>
-          <bandwidth>29.9e3</bandwidth>
+          <!-- computed bandwidth looking at real data 
+               max_ranges vs. image heights. Probably could be improved -->
+          <bandwidth>95.14e3</bandwidth>
+          <!-- soundSpeed verified from single dpeloyment with Seabotix. -->
           <soundSpeed>1505</soundSpeed>
-          <sourceLevel>220</sourceLevel>
-          <maxDistance>5</maxDistance>
-          <constantReflectivity>true</constantReflectivity>
+          <!-- sourceLevel from here: https://fundyforce.ca/resources/
+                                      ea188b39d4994ac05c3d20cd36000d62/
+                                      Appendix6-2019-Imaging-Sonar-Review-for-
+                                      Marine-Environmental-Monitoring-Around-
+                                      Tidal-Turbines-JOSLIN.pdf-->
+          <sourceLevel>197</sourceLevel>
+          <maxDistance>2</maxDistance>
+          <constantReflectivity>false</constantReflectivity>
           <!-- The CSV databsefile is located at the worlds folder -->
-          <reflectivityDatabaseFile>variationalReflectivityDatabase.csv</reflectivityDatabaseFile>
-          <raySkips>10</raySkips>
-          <sensorGain>0.02</sensorGain>
+          <reflectivityDatabaseFile>variationalReflectivityDatabase_OSU.csv</reflectivityDatabaseFile>
+          <raySkips>0</raySkips>
+          <sensorGain>0.01</sensorGain>
           <plotScaler>2.5</plotScaler>
           <writeLog>false</writeLog>
           <debugFlag>false</debugFlag>
