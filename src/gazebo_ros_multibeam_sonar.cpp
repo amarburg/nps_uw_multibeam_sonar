@@ -229,6 +229,25 @@ void NpsGazeboRosMultibeamSonar::Load(sensors::SensorPtr _parent,
   else
     this->sensorGain =
       _sdf->GetElement("sensorGain")->Get<float>();
+  
+  if (!_sdf->HasElement("horizontal_fov"))
+    this->horizontal_fov = 2.0944; // tritech gemini 720i
+  else
+    this->horizontal_fov =
+      _sdf->GetElement("horizontal_fov")->Get<float>();
+  
+  if (!_sdf->HasElement("minDistance"))
+    this->minDistance = 0.2; // tritech gemini 720i
+  else
+    this->minDistance =  
+      _sdf->GetElement("minDistance")->Get<float>();
+  
+  // if (!_sdf->HasElement("horizontal_fov"))
+  //   this->horizontal_fov = 2.0944; // tritech gemini 720i
+  // else
+  //   this->horizontal_fov =
+  //     _sdf->GetElement("horizontal_fov")->Get<float>();
+
   // Configure skips
   if (this->raySkips == 0) this->raySkips = 1;
 
@@ -348,6 +367,16 @@ void NpsGazeboRosMultibeamSonar::Load(sensors::SensorPtr _parent,
   ROS_INFO_STREAM("# of Time data / Beam = " << this->nFreq);
   ROS_INFO_STREAM("==================================================");
   ROS_INFO_STREAM("");
+
+  // so this info can be accessed by downstream recording tasks
+  ros::NodeHandle nh;
+  nh.setParam("/sonar_img/max_range", this->maxDistance);
+  nh.setParam("/sonar_img/min_range", this->minDistance);
+  nh.setParam("/sonar_img/range_res", delta_t*this->soundSpeed/2.0);
+  nh.setParam("/sonar_img/num_beams", this->nBeams);
+  nh.setParam("/sonar_img/num_rows", this->nFreq);
+  nh.setParam("/sonar_img/horizontal_fov", this->horizontal_fov); 
+  nh.setParam("/sonar_img/elev_fov", (this->parentSensor->DepthCamera()->HFOV().Radian()/this->width)*this->nRays);
 
   // get writeLog Flag
   if (!_sdf->HasElement("writeLog"))

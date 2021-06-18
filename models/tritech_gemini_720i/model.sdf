@@ -46,10 +46,11 @@
             <height>43</height>
             <format>R8G8B8</format>
           </image>
-          <clip>
+          
+          <!-- <clip>
             <near>0.2</near>            
-            <far>20</far>
-          </clip>
+            <far>10</far>
+          </clip> -->
           <depth_camera>
             <output>depths</output>
           </depth_camera>
@@ -63,7 +64,7 @@
           <!-- computed bandwidth looking at real data 
                max_ranges vs. image heights. Probably could be improved -->
           <bandwidth>95.14e3</bandwidth>
-          <!-- soundSpeed verified from single dpeloyment with Seabotix. -->
+          <!-- soundSpeed verified from single deployment with Seabotix. -->
           <soundSpeed>1505</soundSpeed>
           <!-- sourceLevel from here: https://fundyforce.ca/resources/
                                       ea188b39d4994ac05c3d20cd36000d62/
@@ -71,11 +72,12 @@
                                       Marine-Environmental-Monitoring-Around-
                                       Tidal-Turbines-JOSLIN.pdf-->
           <sourceLevel>197</sourceLevel>
+          <minDistance>0.2</minDistance> <!-- defined by tritech -->
           <maxDistance>2</maxDistance>
           <constantReflectivity>false</constantReflectivity>
           <!-- The CSV databsefile is located at the worlds folder -->
           <reflectivityDatabaseFile>variationalReflectivityDatabase_OSU.csv</reflectivityDatabaseFile>
-          <raySkips>0</raySkips>
+          <raySkips>1</raySkips>
           <sensorGain>0.01</sensorGain>
           <plotScaler>2.5</plotScaler>
           <writeLog>false</writeLog>

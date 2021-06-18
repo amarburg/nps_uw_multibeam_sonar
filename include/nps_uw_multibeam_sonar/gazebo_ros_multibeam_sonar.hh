@@ -133,11 +133,13 @@ namespace gazebo
     private: double sonarFreq;
     private: double bandwidth;
     private: double soundSpeed;
+    private: double minDistance;
     private: double maxDistance;
     private: double sourceLevel;
     private: bool constMu;
     private: double absorption;
     private: double attenuation;
+    private: double horizontal_fov;
     // constant reflectivity
     private: double mu;
     // variational reflectivity
