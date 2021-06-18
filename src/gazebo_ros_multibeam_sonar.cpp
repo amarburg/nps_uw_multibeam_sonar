@@ -740,6 +740,7 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
   cv::RNG rng = cv::theRNG();
   rng.fill(rand_image, cv::RNG::NORMAL, 0.f, 1.f);
 
+  // std::cout << "skipping corrector" << std::endl;
   if (this->beamCorrectorSum == 0)
     ComputeCorrector();
 

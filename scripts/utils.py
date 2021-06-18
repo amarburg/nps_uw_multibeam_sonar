@@ -63,15 +63,16 @@ def pc2elevmap(pc_msg, num_elev_classes, sonar_params):
 	pc = pc[(r < max_range) & (r > min_range) & \
 			(bearing > horizontal_fov/-2.) & (bearing < horizontal_fov/2.) & \
 			(elev > elev_aperature/-2.) & (elev < elev_aperature/2.)]
-
+	
 	# todo: make faster
 	r, bearing, elev = cartesian2polar(pc)
 	
 	# generate image
 	elev_classes = ((elev + (elev_aperature/2.)) / (elev_aperature/num_elev_classes)).astype('int')
-	img_cols = ((bearing + horizontal_fov/2.) * (num_beams/horizontal_fov)).astype('int')
+	img_cols = ((bearing + horizontal_fov/2) * (num_beams/horizontal_fov)).astype('int')
 	img_rows = ((r-min_range)*(num_rows/(max_range-min_range))).astype('int')
-	# print("rangeres:", ((max_range-min_range)/num_rows))
+	# print("rangeres:", range_res)
+	# print((horizontal_fov, num_beams))
 	# img_rows = ((r)*(1/range_res)).astype('int')
 	img_coords = zip(img_rows, img_cols, elev_classes)
 	

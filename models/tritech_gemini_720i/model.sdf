@@ -65,7 +65,7 @@
                max_ranges vs. image heights. Probably could be improved -->
           <bandwidth>95.14e3</bandwidth>
           <!-- soundSpeed verified from single deployment with Seabotix. -->
-          <soundSpeed>1505</soundSpeed>
+          <soundSpeed>1500</soundSpeed>
           <!-- sourceLevel from here: https://fundyforce.ca/resources/
                                       ea188b39d4994ac05c3d20cd36000d62/
                                       Appendix6-2019-Imaging-Sonar-Review-for-
