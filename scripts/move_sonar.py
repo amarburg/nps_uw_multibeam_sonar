@@ -87,8 +87,9 @@ if __name__ == '__main__':
 				 [2.09,2.3,3.2,0,0.507,1.2]]
 
 	for i in range(1,len(pose_list)):
-		print('not accounting for the fact that the simulated sonar probably doesnt point down like tritech')
 		current_pose = pose_list[i-1]
+		current_pose[4] += 0.174533 # to account for tilt of tritech down 10 degrees
+		print('confirm this tilting is necessary')
 		move_robot_to_pose(current_pose, pose_list[i], robot_velocity, movements_per_second)
 
 
