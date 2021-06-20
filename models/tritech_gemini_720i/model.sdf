@@ -73,7 +73,7 @@
                                       Tidal-Turbines-JOSLIN.pdf-->
           <sourceLevel>197</sourceLevel>
           <minDistance>0.2</minDistance> <!-- defined by tritech -->
-          <maxDistance>2</maxDistance>
+          <maxDistance>4</maxDistance>
           <constantReflectivity>false</constantReflectivity>
           <!-- The CSV databsefile is located at the worlds folder -->
           <reflectivityDatabaseFile>variationalReflectivityDatabase_OSU.csv</reflectivityDatabaseFile>
