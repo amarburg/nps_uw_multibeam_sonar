@@ -38,14 +38,14 @@ x = range_vector.*cos(sonarBeams');
 y = range_vector.*sin(sonarBeams');
 
 figure;
-subplot(2,2,1)
+ax1 = subplot(2,2,1);
 scatterPointSize = 8;
 scatter(x(:),y(:),scatterPointSize,20*log10(abs(plotData(:))),'filled')
 clims = clims_base + 20*log10(max(max(abs(plotData))));
 caxis(clims);colorbar;title('sonar image');
 xlabel('X [m]');ylabel('Y [m]');h = colorbar;ylabel(h,'Echo Level');
-axis equal;axis tight;colormap(hot);set(gca,'Color','k')
-xlim(1.02*[0 xPlotRange]);ylim(1.02*[-yPlotRange yPlotRange])
+axis equal;axis tight;colormap(ax1,hot);set(gca,'Color','k')
+xlim(1.02*[0 xPlotRange]);ylim(0.90*[-yPlotRange yPlotRange])
 
 % caxis([10 65])
 
@@ -70,11 +70,14 @@ scatter3(PointCloud(:,1),PointCloud(:,2),PointCloud(:,3),5,'filled','k')
 xlabel('X'),ylabel('Y'),zlabel('Z'); axis equal;
 title('point cloud')
 
-subplot(2,2,[2 4 ]);
-scatter(x(:),y(:),scatterPointSize,20*log10(abs(plotData(:))),'filled'); hold on;
-scatter(PointCloud(:,3),PointCloud(:,1),5,'filled','k')
+ax2 = subplot(2,2,[2 4 ]);
+scatter(x(:),y(:),50,20*log10(abs(plotData(:))),'filled'); hold on;
+% clims = clims_base + 20*log10(max(max(abs(plotData))));
+title('sonar image');colormap(ax2,hsv);set(gca,'Color','k')
+scatter(PointCloud(:,3),PointCloud(:,1),8,'filled','k')
+scatter(PointCloud(:,3),PointCloud(:,1),4,'filled','w')
 xlabel('X'),ylabel('Y'),zlabel('Z'); axis equal;
 title('overlap');axis equal;
-xlim(1.02*[0 xPlotRange]);ylim(1.02*[-yPlotRange yPlotRange])
+xlim(0.4*[2.5 xPlotRange]);ylim(0.15*[-yPlotRange yPlotRange])
 
 sgtitle(titletext);
