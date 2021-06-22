@@ -7,7 +7,7 @@
     <include>
       <uri>model://sun</uri>
     </include>
-    
+
     <gui fullscreen='0'>
       <camera name='user_camera'>
         <pose frame=''>12.2952 1.73855 3.87109 0 0.186 2.944</pose>

@@ -46,9 +46,9 @@
             <height>43</height>
             <format>R8G8B8</format>
           </image>
-          
+
           <!-- <clip>
-            <near>0.2</near>            
+            <near>0.2</near>
             <far>10</far>
           </clip> -->
           <depth_camera>
@@ -61,7 +61,7 @@
         <plugin filename="libnps_multibeam_sonar_ros_plugin.so" name="forward_sonar">
           <!-- Sonar properties -->
           <sonarFreq>720e3</sonarFreq>
-          <!-- computed bandwidth looking at real data 
+          <!-- computed bandwidth looking at real data
                max_ranges vs. image heights. Probably could be improved -->
           <bandwidth>95.14e3</bandwidth>
           <!-- soundSpeed verified from single deployment with Seabotix. -->
@@ -80,11 +80,11 @@
           <raySkips>1</raySkips>
           <sensorGain>0.01</sensorGain>
           <plotScaler>2.5</plotScaler>
-          <writeLog>false</writeLog>
+          <writeLog>true</writeLog>
           <debugFlag>false</debugFlag>
           <writeFrameInterval>5</writeFrameInterval>
           <!-- Where to write the csvs -->
-          <writeLoc>/home/bob/Downloads/sonar_test/</writeLoc>
+          <writeLoc>/tmp/</writeLoc>
           <!-- This name is prepended to ROS topics -->
           <cameraName>tritech_gemini_720i</cameraName>
           <!-- ROS publication topics -->

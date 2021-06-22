@@ -22,7 +22,9 @@
 #include <sensor_msgs/image_encodings.h>
 #include <cv_bridge/cv_bridge.h>
 
+#include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/point_cloud_conversion.h>
 
 #include <nps_uw_multibeam_sonar/sonar_calculation_cuda.cuh>
 
@@ -229,19 +231,19 @@ void NpsGazeboRosMultibeamSonar::Load(sensors::SensorPtr _parent,
   else
     this->sensorGain =
       _sdf->GetElement("sensorGain")->Get<float>();
-  
+
   if (!_sdf->HasElement("horizontal_fov"))
     this->horizontal_fov = 2.0944; // tritech gemini 720i
   else
     this->horizontal_fov =
       _sdf->GetElement("horizontal_fov")->Get<float>();
-  
+
   if (!_sdf->HasElement("minDistance"))
     this->minDistance = 0.2; // tritech gemini 720i
   else
-    this->minDistance =  
+    this->minDistance =
       _sdf->GetElement("minDistance")->Get<float>();
-  
+
   // if (!_sdf->HasElement("horizontal_fov"))
   //   this->horizontal_fov = 2.0944; // tritech gemini 720i
   // else
@@ -375,7 +377,7 @@ void NpsGazeboRosMultibeamSonar::Load(sensors::SensorPtr _parent,
   nh.setParam("/sonar_img/range_res", delta_t*this->soundSpeed/2.0);
   nh.setParam("/sonar_img/num_beams", this->nBeams);
   nh.setParam("/sonar_img/num_rows", this->nFreq);
-  nh.setParam("/sonar_img/horizontal_fov", this->horizontal_fov); 
+  nh.setParam("/sonar_img/horizontal_fov", this->horizontal_fov);
   nh.setParam("/sonar_img/elev_fov", (this->parentSensor->DepthCamera()->HFOV().Radian()/this->width)*this->nRays);
 
   // get writeLog Flag
@@ -790,7 +792,6 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
     ROS_INFO_STREAM("GPU Sonar Frame Calc Time " <<
                     duration.count()/10000 << "/100 [s]\n");
   }
-
   // CSV log write stream
   // Each cols corresponds to each beams
   if (this->writeLogFlag)
@@ -799,6 +800,7 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
     if (this->writeCounter == 1
         ||this->writeCounter % this->writeInterval == 0)
     {
+      // Write Sonar Raw Data
       double time = this->parentSensor_->LastMeasurementTime().Double();
       std::stringstream filename;
       filename << this->writeLocDir << "SonarRawData_" << std::setw(6) <<  std::setfill('0')
@@ -826,6 +828,19 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
       }
       writeLog.close();
 
+      // Write Point Cloud
+      sensor_msgs::PointCloud cloud_out;
+      sensor_msgs::convertPointCloud2ToPointCloud(this->point_cloud_msg_, cloud_out);
+      std::stringstream filenamePc;
+      filenamePc << this->writeLocDir << "PointCloud_" << std::setw(6) <<  std::setfill('0')
+               << this->writeNumber << ".csv";
+      writeLog.open(filenamePc.str().c_str(), std::ios_base::app);
+      filenamePc.clear();
+      writeLog << "# x, y, z\n";
+      for (size_t i = 0; i < cloud_out.points.size(); i ++)
+        if (cloud_out.points[i].z != 100)
+          writeLog << cloud_out.points[i].x << "," << cloud_out.points[i].y << "," << cloud_out.points[i].z <<  "\n";
+      writeLog.close();
       this->writeNumber = this->writeNumber + 1;
     }
   }
