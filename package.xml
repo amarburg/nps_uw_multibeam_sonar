@@ -21,6 +21,8 @@
   <depend>sensor_msgs</depend>
   <!-- From https://github.com/apl-ocean-engineering/hydrographic_msgs -->
   <depend>acoustic_msgs</depend>
+  <!-- From https://github.com/apl-ocean-engineering/sonar_image_proc -->
+  <depend>sonar_image_proc</depend>
   <depend>std_msgs</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>

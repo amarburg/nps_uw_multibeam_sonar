@@ -18,7 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
  tf
  cv_bridge
  gazebo_plugins
- acoustic_msgs)
+ acoustic_msgs
+ sonar_image_proc )
 
 find_package(gazebo REQUIRED)
 find_package(roscpp REQUIRED)
@@ -46,7 +47,8 @@ catkin_package(
   LIBRARIES
   CATKIN_DEPENDS
   acoustic_msgs
- )
+  sonar_image_proc
+)
 
 ## Plugins
 add_library(nps_multibeam_sonar_ros_plugin

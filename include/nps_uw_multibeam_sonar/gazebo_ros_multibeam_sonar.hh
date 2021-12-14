@@ -64,6 +64,8 @@
 #include <gazebo/rendering/Visual.hh>
 #include "selection_buffer/SelectionBuffer.hh"
 
+#include "sonar_image_proc/SonarDrawer.h"
+
 
 namespace gazebo
 {
@@ -203,6 +205,8 @@ namespace gazebo
     private: ros::Publisher point_cloud_pub_;
     private: ros::Publisher sonar_image_raw_pub_;
     private: ros::Publisher sonar_image_pub_;
+    private: ros::Publisher rect_sonar_image_pub_;
+
 
     private: sensor_msgs::Image depth_image_msg_;
     private: sensor_msgs::Image normal_image_msg_;
@@ -223,6 +227,7 @@ namespace gazebo
     private: std::string point_cloud_topic_name_;
     private: std::string sonar_image_raw_topic_name_;
     private: std::string sonar_image_topic_name_;
+    private: std::string rect_sonar_image_topic_name_;
 
     private: double point_cloud_cutoff_;
 
@@ -231,6 +236,8 @@ namespace gazebo
     protected: ros::Publisher depth_image_camera_info_pub_;
 
     private: event::ConnectionPtr load_connection_;
+
+    sonar_image_proc::SonarDrawer sonarDrawer_;
 
     // from DepthCameraPlugin
     protected: unsigned int width, height, depth;

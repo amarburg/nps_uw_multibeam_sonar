@@ -31,7 +31,10 @@
 #include <boost/bind.hpp>
 
 #include <nps_uw_multibeam_sonar/gazebo_ros_multibeam_sonar.hh>
+#include <nps_uw_multibeam_sonar/simulated_sonar_abstract_sonar_interface.hh>
+
 #include <gazebo/sensors/Sensor.hh>
+
 #include <sdf/sdf.hh>
 #include <gazebo/sensors/SensorTypes.hh>
 
@@ -176,11 +179,14 @@ void NpsGazeboRosMultibeamSonar::Load(sensors::SensorPtr _parent,
   else
     this->sonar_image_raw_topic_name_ =
       _sdf->GetElement("sonarImageRawTopicName")->Get<std::string>();
+
   if (!_sdf->HasElement("sonarImageTopicName"))
     this->sonar_image_topic_name_ = "sonar_image";
   else
     this->sonar_image_topic_name_ =
       _sdf->GetElement("sonarImageTopicName")->Get<std::string>();
+
+  this->rect_sonar_image_topic_name_ = this->sonar_image_topic_name_ + "_rect";
 
   // Read sonar properties from model.sdf
   if (!_sdf->HasElement("verticalFOV"))
@@ -535,6 +541,14 @@ void NpsGazeboRosMultibeamSonar::Advertise()
       boost::bind(&NpsGazeboRosMultibeamSonar::DepthImageDisconnect, this),
       ros::VoidPtr(), &this->camera_queue_);
   this->sonar_image_pub_ = this->rosnode_->advertise(sonar_image_ao);
+
+  ros::AdvertiseOptions rect_sonar_image_ao =
+    ros::AdvertiseOptions::create<sensor_msgs::Image>(
+      this->rect_sonar_image_topic_name_, 1,
+      boost::bind(&NpsGazeboRosMultibeamSonar::DepthImageConnect, this),
+      boost::bind(&NpsGazeboRosMultibeamSonar::DepthImageDisconnect, this),
+      ros::VoidPtr(), &this->camera_queue_);
+  this->rect_sonar_image_pub_ = this->rosnode_->advertise(rect_sonar_image_ao);
 }
 
 
@@ -907,6 +921,21 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
     }
   }
 
+    // These are used both for the SonarImage ROS message and for the internal
+    // sonar_image_proc
+    std::vector<float> azimuth_angles;
+        double fl = static_cast<double>(width) / (2.0 * tan(hFOV/2.0));
+    for (size_t beam = 0; beam < nBeams; beam ++)
+    azimuth_angles.push_back(atan2(static_cast<double>(beam) -
+                    0.5 * static_cast<double>(width-1), fl));
+
+    // std::vector<float> elevation_angles;
+    // elevation_angles.push_back(vFOV / 2.0);  // 1D in elevation
+    // this->sonar_image_raw_msg_.elevation_angles = elevation_angles;
+    std::vector<float> ranges;
+    for (size_t i = 0; i < P_Beams[0].size(); i ++)
+        ranges.push_back(rangeVector[i]);
+
   // Sonar image ROS msg
   this->sonar_image_raw_msg_.header.frame_id
         = this->frame_name_.c_str();
@@ -918,18 +947,7 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
   this->sonar_image_raw_msg_.sound_speed = this->soundSpeed;
   this->sonar_image_raw_msg_.azimuth_beamwidth = hPixelSize;
   this->sonar_image_raw_msg_.elevation_beamwidth = hPixelSize*this->nRays;
-  std::vector<float> azimuth_angles;
-  double fl = static_cast<double>(width) / (2.0 * tan(hFOV/2.0));
-  for (size_t beam = 0; beam < nBeams; beam ++)
-    azimuth_angles.push_back(atan2(static_cast<double>(beam) -
-                    0.5 * static_cast<double>(width-1), fl));
   this->sonar_image_raw_msg_.azimuth_angles = azimuth_angles;
-  // std::vector<float> elevation_angles;
-  // elevation_angles.push_back(vFOV / 2.0);  // 1D in elevation
-  // this->sonar_image_raw_msg_.elevation_angles = elevation_angles;
-  std::vector<float> ranges;
-  for (size_t i = 0; i < P_Beams[0].size(); i ++)
-    ranges.push_back(rangeVector[i]);
   this->sonar_image_raw_msg_.ranges = ranges;
 
   // this->sonar_image_raw_msg_.is_bigendian = false;
@@ -954,68 +972,17 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
   // Construct visual sonar image for rqt plot in sensor::image msg format
   cv_bridge::CvImage img_bridge;
 
-  // Generate image of 32FC1
-  cv::Mat Intensity_image = cv::Mat::zeros(cv::Size(nBeams, nFreq), CV_32FC1);
+  nps_uw_multibeam_sonar::NPSSimulatedSonarInterface pingInterface(P_Beams, azimuth_angles, ranges, this->sensorGain);
 
-  const float rangeMax = maxDistance;
-  const float rangeRes = ranges[1]-ranges[0];
-  const int nEffectiveRanges = ceil(rangeMax / rangeRes);
-  const unsigned int radius = Intensity_image.size().height;
-  const cv::Point origin(Intensity_image.size().width/2,
-                         Intensity_image.size().height);
-  const float binThickness = 2 * ceil(radius / nEffectiveRanges);
+  // Generate CV_32FC1 rectangular sonar image
+  cv::Mat Rect_image = sonarDrawer_.drawRectSonarImage(pingInterface,
+                                nps_uw_multibeam_sonar::NPSGreyscaleColorMap(this->plotScaler),
+                                cv::Mat(0, 0, CV_32FC1));
+  // By default rotated the rect image so it aligns with the final sonar image.
+  cv::Mat rotated_rect_image;
+  cv::rotate(Rect_image, rotated_rect_image, cv::ROTATE_90_COUNTERCLOCKWISE);
 
-  struct BearingEntry
-  {
-    float begin, center, end;
-    BearingEntry(float b, float c, float e)
-      : begin(b), center(c), end(e)
-        {;}
-  };
-
-  std::vector<BearingEntry> angles;
-  angles.reserve(nBeams);
-
-  for ( int b = 0; b < nBeams; ++b )
-  {
-    const float center = azimuth_angles[b];
-    float begin = 0.0, end = 0.0;
-    if (b == 0)
-    {
-      end = (azimuth_angles[b + 1] + center) / 2.0;
-      begin = 2 * center - end;
-    }
-    else if (b == nBeams - 1)
-    {
-      begin = angles[b - 1].end;
-      end = 2 * center - begin;
-    }
-    else
-    {
-      begin = angles[b - 1].end;
-      end = (azimuth_angles[b + 1] + center) / 2.0;
-    }
-    angles.push_back(BearingEntry(begin, center, end));
-  }
-
-  const float ThetaShift = 1.5*M_PI;
-  for ( int r = 0; r < ranges.size(); ++r )
-  {
-    if ( ranges[r] > rangeMax ) continue;
-    for ( int b = 0; b < nBeams; ++b )
-    {
-      const float range = ranges[r];
-      const int intensity = this->sensorGain * abs(P_Beams[b][r]);
-      const float begin = angles[b].begin + ThetaShift,
-                  end = angles[b].end + ThetaShift;
-      const float rad = static_cast<float>(radius) * range/rangeMax;
-      // Assume angles are in image frame x-right, y-down
-      cv::ellipse(Intensity_image, origin, cv::Size(rad, rad), 0,
-                  begin * 180/M_PI, end * 180/M_PI,
-                  intensity/2500.0*this->plotScaler,
-                  binThickness);
-    }
-  }
+  cv::Mat Intensity_image = sonarDrawer_.remapRectSonarImage(pingInterface, Rect_image);
 
   // Publish final sonar image
   this->sonar_image_msg_.header.frame_id
@@ -1024,13 +991,21 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
         = this->depth_sensor_update_time_.sec;
   this->sonar_image_msg_.header.stamp.nsec
         = this->depth_sensor_update_time_.nsec;
+
   img_bridge = cv_bridge::CvImage(this->sonar_image_msg_.header,
                                   sensor_msgs::image_encodings::TYPE_32FC1,
                                   Intensity_image);
-  // from cv_bridge to sensor_msgs::Image
   img_bridge.toImageMsg(this->sonar_image_msg_);
-
   this->sonar_image_pub_.publish(this->sonar_image_msg_);
+
+  sensor_msgs::Image rect_sonar_image_msg_;
+  rect_sonar_image_msg_.header = this->sonar_image_msg_.header;
+  img_bridge = cv_bridge::CvImage(rect_sonar_image_msg_.header,
+                                  sensor_msgs::image_encodings::TYPE_32FC1,
+                                  rotated_rect_image);
+  img_bridge.toImageMsg(rect_sonar_image_msg_);
+  this->rect_sonar_image_pub_.publish(rect_sonar_image_msg_);
+
 
   // ---------------------------------------- End of sonar calculation
 
