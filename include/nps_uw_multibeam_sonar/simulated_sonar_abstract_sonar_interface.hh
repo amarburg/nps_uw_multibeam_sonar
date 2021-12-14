@@ -9,6 +9,8 @@
 
 namespace nps_uw_multibeam_sonar {
 
+// \todo These types should be moved to their own header so they aren't
+// repeated both here and in gazebo_ros_multibeam_sonar.hh
 typedef std::complex<float> Complex;
 typedef std::valarray<Complex> CArray;
 typedef std::valarray<CArray> CArray2D;
