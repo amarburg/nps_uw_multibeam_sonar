@@ -176,6 +176,8 @@ namespace gazebo
     private: float sensorGain;
     protected: bool debugFlag;
 
+    private: unsigned int sonar_seq_;
+
     /// \brief CSV log writing stream for verifications
     protected: std::ofstream writeLog;
     protected: u_int64_t writeCounter;

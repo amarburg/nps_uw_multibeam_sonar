@@ -54,7 +54,8 @@ GZ_REGISTER_SENSOR_PLUGIN(NpsGazeboRosMultibeamSonar)
 
 // Constructor
 NpsGazeboRosMultibeamSonar::NpsGazeboRosMultibeamSonar() :
-  SensorPlugin(), width(0), height(0), depth(0)
+  SensorPlugin(), width(0), height(0), depth(0),
+  sonar_seq_(0)
 {
   this->depth_image_connect_count_ = 0;
   this->depth_info_connect_count_ = 0;
@@ -987,6 +988,7 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
   // Publish final sonar image
   this->sonar_image_msg_.header.frame_id
         = this->frame_name_;
+  this->sonar_image_msg_.header.seq = sonar_seq_;
   this->sonar_image_msg_.header.stamp.sec
         = this->depth_sensor_update_time_.sec;
   this->sonar_image_msg_.header.stamp.nsec
@@ -1013,6 +1015,7 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
   // Depth image
   this->depth_image_msg_.header.frame_id
         = this->frame_name_;
+  this->depth_image_msg_.header.seq = sonar_seq_;
   this->depth_image_msg_.header.stamp.sec
         = this->depth_sensor_update_time_.sec;
   this->depth_image_msg_.header.stamp.nsec
@@ -1027,6 +1030,7 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
   // Normal image
   this->normal_image_msg_.header.frame_id
         = this->frame_name_;
+  this->normal_image_msg_.header.seq = sonar_seq_;
   this->normal_image_msg_.header.stamp.sec
         = this->depth_sensor_update_time_.sec;
   this->normal_image_msg_.header.stamp.nsec
@@ -1040,6 +1044,8 @@ void NpsGazeboRosMultibeamSonar::ComputeSonarImage(const float *_src)
   // from cv_bridge to sensor_msgs::Image
   this->normal_image_pub_.publish(this->normal_image_msg_);
 
+  sonar_seq_++;
+
   this->lock_.unlock();
 }
 
@@ -1050,6 +1056,7 @@ void NpsGazeboRosMultibeamSonar::ComputePointCloud(const float *_src)
 
   this->point_cloud_msg_.header.frame_id
         = this->frame_name_;
+  this->point_cloud_msg_.header.seq = sonar_seq_;
   this->point_cloud_msg_.header.stamp.sec
         = this->depth_sensor_update_time_.sec;
   this->point_cloud_msg_.header.stamp.nsec
